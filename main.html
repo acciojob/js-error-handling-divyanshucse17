@@ -1,16 +1,110 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="en">
 <head>
-	<link rel="stylesheet" href="styles.css">
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Error Handling - Expression Evaluator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
 
+        h1 {
+            color: #333;
+        }
+
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .result {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
 <body>
-	<!-- the entire body must be written by student -->
-    <script type="text/javascript" src="./script.js">
-</script>
+
+    <h1>Smart Expression Evaluator</h1>
+    <input type="text" id="expressionInput" placeholder="Enter expression (e.g., 5+3*2)">
+    <button onclick="evaluateExpression()">Evaluate</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        // Custom Error Classes
+        class OutOfRangeError extends Error {
+            constructor(message) {
+                super(message);
+                this.name = "OutOfRangeError";
+            }
+        }
+
+        class InvalidExprError extends Error {
+            constructor(message) {
+                super(message);
+                this.name = "InvalidExprError";
+            }
+        }
+
+        // Function to evaluate the expression
+        function evalString(expression) {
+            // Check for invalid starting or ending operators
+            if (/^[\+\*\/\-]/.test(expression)) {
+                throw new SyntaxError("Expression should not start with invalid operator");
+            }
+
+            if (/[\+\*\/\-]$/.test(expression)) {
+                throw new SyntaxError("Expression should not end with invalid operator");
+            }
+
+            // Check for invalid combinations of operators
+            if (/(\/\+|\+\+|\-\+|\-\-|\*\/|\*\+|\/\-|\*\-)/.test(expression)) {
+                throw new InvalidExprError("Expression should not have an invalid combination of operators");
+            }
+
+            // Check for invalid characters (should only contain digits and operators)
+            if (!/^[\d\+\-\*\/\s]+$/.test(expression)) {
+                throw new OutOfRangeError("Expression should only consist of integers and +-/* characters and not < arg >");
+            }
+
+            // Remove spaces from the expression
+            expression = expression.replace(/\s+/g, '');
+
+            // Evaluate the expression safely using the Function constructor
+            try {
+                return new Function('return ' + expression)();
+            } catch (e) {
+                throw new Error("Invalid Expression");
+            }
+        }
+
+        // Function to evaluate the expression from the input field
+        function evaluateExpression() {
+            const input = document.getElementById("expressionInput").value;
+            const resultDiv = document.getElementById("result");
+
+            try {
+                // Try evaluating the expression
+                const result = evalString(input);
+                resultDiv.innerHTML = `Result: ${result}`;
+                resultDiv.classList.remove("error");
+            } catch (error) {
+                // Display the error if there is one
+                resultDiv.innerHTML = `Error: ${error.message}`;
+                resultDiv.classList.add("error");
+            }
+        }
+    </script>
 
 </body>
-
 </html>
